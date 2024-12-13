@@ -41,7 +41,7 @@ services:
       - "3000:3000"
     networks:
       - fraud-detection
-  #c'est l'APPLICATION JAVA qui va se connecter à kafka
+  #c'est l'APPLICATION JAVA qui va se connecter avec kafka
   fraud-detection:
     image: detectionapp:latest
     networks:
