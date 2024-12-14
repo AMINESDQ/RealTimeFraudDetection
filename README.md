@@ -274,6 +274,9 @@ Ensure your Kafka Streams application writes detected transactions to InfluxDB u
    - Share the dashboard link for team access.
 
 ---
+## Démonstarion
+   ![](screens/demo.gif)
+
 
 ## Conclusion
 
