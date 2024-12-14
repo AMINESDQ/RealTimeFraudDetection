@@ -10,7 +10,7 @@ public class Main {
     public static void main(String[] args) {
         // Configuration de InfluxDB
         String influxUrl = "http://influxdb:8086";
-        String influxToken = "5DpyjNl8_ECfB7CqukOSC4ExB07n_-8Wjeg8erggkwSjS313OPpya8WLQE_L2sFoCXTmpSrnd8wP3FyJyAZAwg==";
+        String influxToken = "0XL4j1rfDdpCr0q5hjJJxOaIjoWtJGLuw9-J83hGezfAKH0jmAdsT-fLpLgIZY18Az2wPQTToNbZ7yh8LDlsNQ==";
         String influxBucket = "aminesdq";
         String influxOrg = "aminesdq";
 

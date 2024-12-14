@@ -1,3 +1,5 @@
+version: '3.8'
+
 networks:
   fraud-detection:
     driver: bridge
@@ -10,6 +12,9 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
     ports:
       - "2181:2181"
+    volumes:
+      - ./volumes/zookeeper-data:/var/lib/zookeeper/data
+      - ./volumes/zookeeper-datalog:/var/lib/zookeeper/datalog
     networks:
       - fraud-detection
 
@@ -23,6 +28,8 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     ports:
       - "9092:9092"
+    volumes:
+      - ./volumes/kafka-data:/var/lib/kafka/data
     networks:
       - fraud-detection
     depends_on:
@@ -32,6 +39,8 @@ services:
     image: influxdb:2.0
     ports:
       - "8086:8086"
+    volumes:
+      - ./volumes/influxdb-data:/var/lib/influxdb
     networks:
       - fraud-detection
 
@@ -39,10 +48,13 @@ services:
     image: grafana/grafana
     ports:
       - "3000:3000"
+    volumes:
+      - ./volumes/grafana-data:/var/lib/grafana
     networks:
       - fraud-detection
-  #c'est l'APPLICATION JAVA qui va se connecter avec kafka
+
   fraud-detection:
     image: detectionapp:latest
     networks:
       - fraud-detection
+
