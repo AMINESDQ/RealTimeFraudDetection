@@ -19,36 +19,7 @@ This project demonstrates the implementation of a **real-time fraud detection ap
 
 ## Project Architecture
 
-```plaintext
-                      +------------------+
-                      |  Transactions   |
-                      |      Source     |
-                      +------------------+
-                              |
-                              v
-                    +--------------------+
-                    |   Kafka Topic:    |
-                    | transactions-input |
-                    +--------------------+
-                              |
-                              v
-               +-----------------------------+
-               |    Kafka Streams App        |
-               |  Fraud Detection Rules      |
-               +-----------------------------+
-                              |
-                              v
-       +-----------------------+        +--------------------+
-       | Kafka Topic:          |        |   InfluxDB         |
-       | fraud-alerts          |        | (Time-Series DB)   |
-       +-----------------------+        +--------------------+
-                              |
-                              v
-                       +-------------+
-                       |   Grafana   |
-                       |  Dashboard  |
-                       +-------------+
-```
+![Architecture ](screens/archi.png)
 
 ## Features
 
