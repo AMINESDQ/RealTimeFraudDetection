@@ -169,15 +169,55 @@ docker-compose down
 docker-compose logs <nom-du-service>
 ```
 
-## Contribution
-
-Les pull requests sont les bienvenues. Pour les changements majeurs, veuillez ouvrir une issue pour discuter des modifications proposées.
-
-## Licence
-
-[À DÉFINIR]
-
----
+Requêtes InfluxDB pour l'Analyse des Transactions Suspectes
+1. Montant Maximum d'une Transaction Suspecte
+fluxCopyfrom(bucket: "aminesdq")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
+  |> filter(fn: (r) => r["_field"] == "amount")
+  |> group(columns: [])
+  |> max()
+  |> yield(name: "max_transaction_amount")
+2. Nombre Total de Transactions Suspectes
+fluxCopyfrom(bucket: "aminesdq")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
+  |> filter(fn: (r) => r["_field"] == "amount")
+  |> group(columns: [])
+  |> count()
+  |> yield(name: "transaction_count")
+3. Montant Moyen d'une Transaction Suspecte
+fluxCopyfrom(bucket: "aminesdq")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
+  |> filter(fn: (r) => r["_field"] == "amount")
+  |> group(columns: [])
+  |> mean()
+  |> yield(name: "average_transaction_amount")
+4. Montant Total des Transactions Suspectes
+fluxCopyfrom(bucket: "aminesdq")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
+  |> filter(fn: (r) => r["_field"] == "amount")
+  |> group(columns: [])
+  |> sum()
+  |> yield(name: "total_transaction_amount")
+5. Nombre de Transactions Suspectes par Utilisateur
+fluxCopyfrom(bucket: "aminesdq")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
+  |> filter(fn: (r) => r["_field"] == "amount")
+  |> group(columns: ["userId"])
+  |> count()
+  |> keep(columns: ["userId", "_value"])
+6. Somme des Transactions Suspectes par Intervalle de 30 Secondes
+fluxCopyfrom(bucket: "aminesdq")
+  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
+  |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
+  |> filter(fn: (r) => r["_field"] == "amount")
+  |> group(columns: [])
+  |> aggregateWindow(every: 30s, fn: sum, createEmpty: false)
+  |> yield(name: "transaction_sum_per_30s")
 
 **Note :** Assurez-vous d'avoir Docker et Docker Compose installés avant de démarrer le projet.
 
