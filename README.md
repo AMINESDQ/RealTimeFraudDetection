@@ -1,4 +1,3 @@
-Je vais créer un README simple pour ce projet de détection de fraudes en temps réel.
 
 # Système de Détection de Fraudes Financières en Temps Réel
 
