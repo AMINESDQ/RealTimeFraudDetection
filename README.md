@@ -1,151 +1,70 @@
-# Kafka Streams Fraud Detection
+Je vais créer un README simple pour ce projet de détection de fraudes en temps réel.
 
-## Table of Contents
+# Système de Détection de Fraudes Financières en Temps Réel
 
-1. [Introduction](#introduction)
-2. [Project Architecture](#project-architecture)
-3. [Features](#features)
-4. [Requirements](#requirements)
-5. [Setup Instructions](#setup-instructions)
-6. [Testing and Validation](#testing-and-validation)
-7. [Grafana Configuration](#grafana-configuration)
-8. [Conclusion](#conclusion)
+## Description du Projet
 
----
-
-## Introduction
-
-This project demonstrates the implementation of a **real-time fraud detection application** using Kafka Streams. The application processes financial transactions from a Kafka topic, detects suspicious transactions based on predefined rules, stores these transactions in InfluxDB, and visualizes the data in Grafana.
+Ce projet implémente un système complet de détection de fraudes financières utilisant les technologies suivantes :
+- Kafka Streams pour le traitement des flux de transactions
+- InfluxDB pour le stockage des données
+- Grafana pour la visualisation en temps réel
 
 ## Project Architecture
 
 ![Architecture ](screens/archi.png)
 
-## Features
+## Prérequis
 
-1. **Real-Time Processing**:
-   - Reads financial transactions from the `transactions-input` topic.
-   - Detects suspicious transactions where the `amount` exceeds 10,000.
+- Docker
+- Docker Compose
+- Java 11+ (pour l'application Kafka Streams)
 
-2. **Kafka Streams Integration**:
-   - Processes and publishes suspicious transactions to the `fraud-alerts` topic.
+## Configuration
 
-3. **Time-Series Database**:
-   - Stores suspicious transactions in InfluxDB for analysis and visualization.
+### Identifiants InfluxDB
+- Nom d'utilisateur : `mohamedamine`
+- Mot de passe : `reda12..`
 
-4. **Real-Time Dashboard**:
-   - Grafana visualizes the following:
-     - Number of suspicious transactions per user.
-     - Total suspicious transaction amounts over time.
+## Architecture du Système
 
-## Requirements
+1. **Kafka** : Gère les flux de transactions
+   - Topic d'entrée : `transactions-input`
+   - Topic des alertes : `fraud-alerts`
 
-- **Kafka** (Confluent Kafka recommended)
-- **Java JDK 17**
-- **InfluxDB**
-- **Grafana**
-- **Docker and Docker Compose**
+2. **InfluxDB** : Stockage des transactions suspectes
 
-## Setup Instructions
+3. **Grafana** : Tableau de bord de visualisation
 
-### 1. Kafka Topics
+## Déploiement
 
-Create the necessary Kafka topics:
+### Étapes de Déploiement
+
+1. Cloner le dépôt
 ```bash
-# Create transactions-input topic
-kafka-topics --create --topic transactions-input --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1
-
-# Create fraud-alerts topic
-kafka-topics --create --topic fraud-alerts --bootstrap-server localhost:9092 --partitions 3 --replication-factor 1
+git clone https://github.com/AMINESDQ/RealTimeFraudDetection
+cd projet-detection-fraudes
 ```
 
-### 2. Run Kafka Streams Application
-
-Build and run the Java application:
+2. Construire l'image de l'application
 ```bash
-# Build the application
-mvn clean package
-
-# Run the application
-java -jar target/fraud-detection-app.jar
+docker build -t detectionapp:latest ./app
 ```
 
-### 3. Deploy InfluxDB and Grafana
-
-Using Docker Compose, deploy the required services:
-
-**`docker-compose.yml`:**
-```yaml
-version: '3.8'
-networks:
-  fraud-detection:
-    driver: bridge
-
-services:
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.5.0
-    container_name: zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-    ports:
-      - "2181:2181"
-    networks:
-      - fraud-detection
-
-  kafka:
-    image: confluentinc/cp-kafka:7.5.0
-    environment:
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://host.docker.internal:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    ports:
-      - "9092:9092"
-    networks:
-      - fraud-detection
-    depends_on:
-      - zookeeper
-
-  influxdb:
-    image: influxdb:2.0
-    ports:
-      - "8086:8086"
-    networks:
-      - fraud-detection
-
-  grafana:
-    image: grafana/grafana
-    ports:
-      - "3000:3000"
-    networks:
-      - fraud-detection
-
-  fraud-detection:
-    image: detectionapp:latest
-    networks:
-      - fraud-detection
-```
-
-Start the containers:
+3. Démarrer l'environnement
 ```bash
 docker-compose up -d
 ```
 
-### 4. Configure InfluxDB
+## Accès aux Services
 
-1. Access InfluxDB at `http://localhost:8086`.
-2. Create a new database:
-   ```bash
-   CREATE DATABASE fraud_detection
-   ```
+- **Grafana** : http://localhost:3000
+- **InfluxDB** : http://localhost:8086
+- **Kafka** : localhost:9092
 
-### 5. Connect Kafka Streams to InfluxDB
+## Règles de Détection de Fraudes
 
-Ensure your Kafka Streams application writes detected transactions to InfluxDB using the following schema:
-- **Measurement:** `suspicious_transactions`
-- **Tags:** `userId`, `transactionId`
-- **Fields:** `amount`, `timestamp`
+Détection des transactions suspectes basée sur les critères suivants :
+- Montant de transaction supérieur à 10 000
 
 ## Testing and Validation
 
@@ -229,73 +148,55 @@ Ensure your Kafka Streams application writes detected transactions to InfluxDB u
        produce_transactions()
    ```
 
-2. **Verify Fraud Detection**:
-   - Check that suspicious transactions appear in the `fraud-alerts` topic.
-   ```bash
-   kafka-console-consumer --topic fraud-alerts --bootstrap-server localhost:9092 --from-beginning
-   ```
+## Monitoring
 
-3. **Validate InfluxDB Storage**:
-   - Ensure suspicious transactions are being written to InfluxDB.
-   - Query the database to confirm:
-     ```bash
-     influx
-     > USE fraud_detection
-     > SELECT * FROM suspicious_transactions
-     ```
-
-4. **Dashboard Testing**:
-   - Access Grafana at `http://localhost:3000`.
-   - Configure a data source for InfluxDB:
-     - URL: `http://influxdb:8086`
-     - Database: `fraud_detection`
-
-
----
-
-## Grafana Configuration
-
-### Dashboard Setup
-
-1. **Create a Data Source**:
-   - Navigate to **Configuration > Data Sources**.
-   - Add a new InfluxDB data source with the following details:
-     - URL: `http://influxdb:8086`
-     - Database: `fraud_detection`
-
-2. **Build Panels**:
-   - Use the query editor to fetch data from InfluxDB:
-     ```plaintext
-     SELECT sum("amount") FROM "suspicious_transactions" WHERE $timeFilter GROUP BY time($__interval)
-     ```
-
-3. **Save the Dashboard**:
-   - Customize titles, axes, and thresholds for better visualization.
-   - Share the dashboard link for team access.
-
----
-## Démonstarion
+Le tableau de bord Grafana affiche en temps réel :
+- Nombre de transactions suspectes par utilisateur
+- Montant total des transactions suspectes
    ![](screens/demo.gif)
 
+  
 
-## Conclusion
+## Arrêter l'Environnement
 
-This project highlights the power of Kafka Streams for real-time data processing and InfluxDB with Grafana for time-series analysis and visualization. By implementing a scalable and modular architecture, this solution can adapt to various fraud detection scenarios, offering organizations an effective tool to mitigate financial risks.
+```bash
+docker-compose down
+```
 
-### Future Enhancements
+## Dépannage
 
-- **Machine Learning Integration**:
-  Use ML models to enhance fraud detection rules for more accuracy.
+- Vérifiez les logs des conteneurs : 
+```bash
+docker-compose logs <nom-du-service>
+```
 
-- **Alerting System**:
-  Configure Grafana to send alerts via email or Slack for critical events.
+## Contribution
 
-- **Extended Monitoring**:
-  Add Prometheus for system metrics monitoring alongside transaction analysis.
+Les pull requests sont les bienvenues. Pour les changements majeurs, veuillez ouvrir une issue pour discuter des modifications proposées.
 
-With these additions, the system can evolve into a comprehensive fraud detection and monitoring solution.
+## Licence
+
+[À DÉFINIR]
 
 ---
 
-This completes the document with all necessary instructions, configurations, and future prospects. Let me know if you'd like additional sections or refinements!
-```
+**Note :** Assurez-vous d'avoir Docker et Docker Compose installés avant de démarrer le projet.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
