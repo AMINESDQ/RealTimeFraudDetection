@@ -16,8 +16,8 @@ Ce projet implémente un système complet de détection de fraudes financières 
 
 - Docker
 - Docker Compose
-- Java 11+ (pour l'application Kafka Streams)
-
+- JAVA 17 
+  
 ## Configuration
 
 ### Identifiants Grafana
