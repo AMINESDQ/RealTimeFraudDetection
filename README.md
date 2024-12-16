@@ -187,37 +187,37 @@ fluxCopyfrom(bucket: "aminesdq")
   |> count()
   |> yield(name: "transaction_count")
 3. Montant Moyen d'une Transaction Suspecte
-fluxCopyfrom(bucket: "aminesdq")
+```fluxCopyfrom(bucket: "aminesdq")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
   |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
   |> filter(fn: (r) => r["_field"] == "amount")
   |> group(columns: [])
   |> mean()
-  |> yield(name: "average_transaction_amount")
+  |> yield(name: "average_transaction_amount")```
 4. Montant Total des Transactions Suspectes
-fluxCopyfrom(bucket: "aminesdq")
+```fluxCopyfrom(bucket: "aminesdq")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
   |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
   |> filter(fn: (r) => r["_field"] == "amount")
   |> group(columns: [])
   |> sum()
-  |> yield(name: "total_transaction_amount")
+  |> yield(name: "total_transaction_amount")```
 5. Nombre de Transactions Suspectes par Utilisateur
-fluxCopyfrom(bucket: "aminesdq")
+```fluxCopyfrom(bucket: "aminesdq")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
   |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
   |> filter(fn: (r) => r["_field"] == "amount")
   |> group(columns: ["userId"])
   |> count()
-  |> keep(columns: ["userId", "_value"])
+  |> keep(columns: ["userId", "_value"])```
 6. Somme des Transactions Suspectes par Intervalle de 30 Secondes
-fluxCopyfrom(bucket: "aminesdq")
+```fluxCopyfrom(bucket: "aminesdq")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
   |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
   |> filter(fn: (r) => r["_field"] == "amount")
   |> group(columns: [])
   |> aggregateWindow(every: 30s, fn: sum, createEmpty: false)
-  |> yield(name: "transaction_sum_per_30s")
+  |> yield(name: "transaction_sum_per_30s")```
 
 **Note :** Assurez-vous d'avoir Docker et Docker Compose installés avant de démarrer le projet.
 
