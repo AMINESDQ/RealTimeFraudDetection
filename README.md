@@ -20,9 +20,9 @@ Ce projet implémente un système complet de détection de fraudes financières 
 
 ## Configuration
 
-### Identifiants InfluxDB
-- Nom d'utilisateur : `mohamedamine`
-- Mot de passe : `reda12..`
+### Identifiants Grafana
+- Nom d'utilisateur : `admin`
+- Mot de passe : `admin`
 
 ## Architecture du Système
 
@@ -43,13 +43,17 @@ Ce projet implémente un système complet de détection de fraudes financières 
 git clone https://github.com/AMINESDQ/RealTimeFraudDetection
 cd projet-detection-fraudes
 ```
-
-2. Construire l'image de l'application
+2.Créer manuellement le topic avant de lancer l'application :
+```bash
+docker-compose exec kafka kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic transactions-input
+docker-compose exec kafka kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic fraud-alerts
+```
+3. Construire l'image de l'application
 ```bash
 docker build -t detectionapp:latest ./app
 ```
 
-3. Démarrer l'environnement
+4. Démarrer l'environnement
 ```bash
 docker-compose up -d
 ```
@@ -170,7 +174,8 @@ docker-compose logs <nom-du-service>
 ```
 
 Requêtes InfluxDB pour l'Analyse des Transactions Suspectes
-1. Montant Maximum d'une Transaction Suspecte
+1. Montant Maximum d'une Transaction Suspecte 
+```bash
 fluxCopyfrom(bucket: "aminesdq")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
   |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
@@ -178,7 +183,9 @@ fluxCopyfrom(bucket: "aminesdq")
   |> group(columns: [])
   |> max()
   |> yield(name: "max_transaction_amount")
-2. Nombre Total de Transactions Suspectes
+```
+3. Nombre Total de Transactions Suspectes
+```bash
 fluxCopyfrom(bucket: "aminesdq")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
   |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
@@ -186,8 +193,10 @@ fluxCopyfrom(bucket: "aminesdq")
   |> group(columns: [])
   |> count()
   |> yield(name: "transaction_count")
+```
 3. Montant Moyen d'une Transaction Suspecte
-```fluxCopyfrom(bucket: "aminesdq")
+```bash
+fluxCopyfrom(bucket: "aminesdq")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
   |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
   |> filter(fn: (r) => r["_field"] == "amount")
@@ -195,7 +204,8 @@ fluxCopyfrom(bucket: "aminesdq")
   |> mean()
   |> yield(name: "average_transaction_amount")```
 4. Montant Total des Transactions Suspectes
-```fluxCopyfrom(bucket: "aminesdq")
+```bash
+fluxCopyfrom(bucket: "aminesdq")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
   |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
   |> filter(fn: (r) => r["_field"] == "amount")
@@ -203,7 +213,8 @@ fluxCopyfrom(bucket: "aminesdq")
   |> sum()
   |> yield(name: "total_transaction_amount")```
 5. Nombre de Transactions Suspectes par Utilisateur
-```fluxCopyfrom(bucket: "aminesdq")
+```bash
+fluxCopyfrom(bucket: "aminesdq")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
   |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
   |> filter(fn: (r) => r["_field"] == "amount")
@@ -211,7 +222,8 @@ fluxCopyfrom(bucket: "aminesdq")
   |> count()
   |> keep(columns: ["userId", "_value"])```
 6. Somme des Transactions Suspectes par Intervalle de 30 Secondes
-```fluxCopyfrom(bucket: "aminesdq")
+```bash
+fluxCopyfrom(bucket: "aminesdq")
   |> range(start: v.timeRangeStart, stop: v.timeRangeStop)
   |> filter(fn: (r) => r["_measurement"] == "suspicious_transactions")
   |> filter(fn: (r) => r["_field"] == "amount")
